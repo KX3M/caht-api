@@ -1,6 +1,7 @@
 import openai
 import os
 import json
+from urllib.parse import unquote
 
 # Set OpenAI API Key
 openai.api_key = os.getenv("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")
@@ -23,9 +24,12 @@ def handler(request):
     if request.method != "POST":
         return {"statusCode": 405, "body": "Method Not Allowed"}
 
-    body = request.json()
-    user_msg = body.get("message")
-    user_id = body.get("user_id", "user")
+    # Extract 'user_id' and 'message' from the query parameters
+    user_id = request.query_params.get("user_id", "user")
+    user_msg = unquote(request.query_params.get("message", ""))  # Decode the URL-encoded message
+
+    if not user_msg:
+        return {"statusCode": 400, "body": "Message is required"}
 
     # Load the chat history for the user
     chat_history = load_chat_history()
@@ -84,5 +88,5 @@ def handler(request):
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
         "body": json.dumps({"reply": reply})
-        }
+    }
     
