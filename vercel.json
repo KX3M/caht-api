@@ -2,12 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "chat.py",
+      "src": "api/chat.py",  // Updated path
       "use": "@vercel/python"
     }
   ],
   "functions": {
-    "chat.py": {
+    "api/chat.py": {  // Updated path for function
       "runtime": "python3.9"
     }
   }
