@@ -2,9 +2,13 @@ import openai
 import os
 import json
 from urllib.parse import unquote
+from dotenv import load_dotenv
 
-# Set OpenAI API Key
-openai.api_key = os.getenv("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")
+# Load environment variables from .env file
+load_dotenv()
+
+# Set OpenAI API Key from environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Load chat history from a JSON file
 def load_chat_history():
@@ -35,13 +39,13 @@ def handler(request):
     chat_history = load_chat_history()
 
     # If user has history, use it as context for the current message
-    if user_id in chat_history:
-        history = chat_history[user_id]
-    else:
-        history = []
+    history = chat_history.get(user_id, [])
 
     # Add the new user message to the chat history
     history.append({"role": "user", "message": user_msg})
+
+    # Limit the history to the last 5 messages
+    history = history[-5:]
 
     # Construct the conversation prompt for the AI model
     prompt = f"""
@@ -66,15 +70,17 @@ def handler(request):
     prompt += f"User: {user_msg}\nSneha ka reply:"
 
     # Make OpenAI API call
-    response = openai.Completion.create(
-        model="text-davinci-003",  # You can use gpt-4 if you prefer
-        prompt=prompt,
-        max_tokens=150,
-        temperature=0.9
-    )
-
-    # Get the reply from OpenAI
-    reply = response["choices"][0]["text"].strip()
+    try:
+        response = openai.Completion.create(
+            model="text-davinci-003",  # You can use gpt-4 if you prefer
+            prompt=prompt,
+            max_tokens=150,
+            temperature=0.9
+        )
+        reply = response["choices"][0]["text"].strip()
+    except Exception as e:
+        reply = "Sorry, I couldn't process your request at this time. Please try again later."
+        print(f"Error: {e}")
 
     # Add the assistant's response to history
     history.append({"role": "assistant", "message": reply})
