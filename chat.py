@@ -79,7 +79,7 @@ def handler(request):
         )
         reply = response["choices"][0]["text"].strip()
     except Exception as e:
-        reply = "Sorry, I couldn't process your request at this time. Please try again later."
+        reply = "Sorry, Babu tum @UmseenRobot dekh lo mai abhi ghar ka kam kar rhi hu!!"
         print(f"Error: {e}")
 
     # Add the assistant's response to history
